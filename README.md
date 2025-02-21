@@ -1,11 +1,8 @@
-# 📡 VI3D_HOST - Raspberry Pi Wi-Fi Setup
+# VI3D_HOST Wi-Fi Portal
 
-**VI3D_HOST** là một giải pháp giúp Raspberry Pi tự động phát Wi-Fi AP khi không tìm thấy mạng Wi-Fi đã lưu. Người dùng có thể kết nối vào AP này để nhập thông tin Wi-Fi mới.
+Dự án này giúp bạn thay đổi Wi-Fi trên Raspberry Pi **mà không cần SSH**.
 
-## 🚀 Cách Cài Đặt
-
-### 1️⃣ **Clone repository từ GitHub**
-```bash
-git clone https://github.com/Kurtt806/VI3D_HOST.git
-cd VI3D_HOST
-
+## 🚀 Cài đặt nhanh
+Chỉ cần chạy lệnh sau:
+```sh
+curl -sSL https://raw.githubusercontent.com/Kurtt806/VI3D_HOST/main/install.sh | bash
