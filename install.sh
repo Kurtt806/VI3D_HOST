@@ -1,36 +1,39 @@
 #!/bin/bash
 
-echo "🔄 Cập nhật hệ thống..."
+echo " Đang cài đặt Wi-Fi Portal trên Raspberry Pi..."
+sleep 1
+
+# Cập nhật hệ thống
 sudo apt update && sudo apt upgrade -y
 
-echo "📦 Cài đặt các gói cần thiết..."
-sudo apt install -y hostapd dnsmasq python3-pip git
-pip3 install flask
+# Cài đặt Flask nếu chưa có
+sudo apt install -y python3-flask git
 
-echo "⚙️ Cấu hình Hostapd..."
-sudo tee /etc/hostapd/hostapd.conf > /dev/null <<EOF
-interface=wlan0
-ssid=Raspi-Setup
-hw_mode=g
-channel=7
-auth_algs=1
-wmm_enabled=0
-wpa=2
-wpa_passphrase=12345678
-wpa_key_mgmt=WPA-PSK
-rsn_pairwise=CCMP
-EOF
+# Clone code từ GitHub
+git clone https://github.com/Kurtt806/VI3D_HOST.git /home/pi/wifi-portal
 
-sudo sed -i 's|#DAEMON_CONF=""|DAEMON_CONF="/etc/hostapd/hostapd.conf"|' /etc/default/hostapd
+# Cấp quyền chạy
+chmod +x /home/pi/wifi-portal/app.py
 
-echo "⚙️ Cấu hình DHCP với dnsmasq..."
-sudo tee /etc/dnsmasq.conf > /dev/null <<EOF
-interface=wlan0
-dhcp-range=192.168.4.2,192.168.4.20,255.255.255.0,24h
-EOF
+# Thêm vào systemd để tự động chạy khi khởi động
+sudo bash -c 'cat << EOF > /etc/systemd/system/wifi-portal.service
+[Unit]
+Description=WiFi Portal Config
+After=network.target
 
-echo "🚀 Thiết lập chạy web server khi khởi động..."
-chmod +x ~/Raspi-WiFi-Setup/start.sh
-(crontab -l; echo "@reboot /home/pi/Raspi-WiFi-Setup/start.sh") | crontab -
+[Service]
+ExecStart=/usr/bin/python3 /home/pi/wifi-portal/app.py
+WorkingDirectory=/home/pi/wifi-portal
+Restart=always
+User=pi
 
-echo "✅ Cài đặt hoàn tất! Hãy khởi động lại Raspberry Pi."
+[Install]
+WantedBy=multi-user.target
+EOF'
+
+# Kích hoạt service
+sudo systemctl daemon-reload
+sudo systemctl enable wifi-portal
+sudo systemctl start wifi-portal
+
+echo "Cài đặt hoàn tất! Truy cập http://192.168.4.1 để cấu hình Wi-Fi."
